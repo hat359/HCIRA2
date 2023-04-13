@@ -23,6 +23,7 @@ GREEN = 'green' # color of the stroke
 ORANGE = 'orange'
 LOG_BOARD_CLEARED = 'Canvas cleared by User'
 LOG_DRAWING_FINISHED = 'Drawing Finished' # keeping track of mouse up and mouse down. 
+MOUSE_UP = 'Mouse Up'
 SAMPLING_POINTS = 64
 SCALE_FACTOR = 300
 ORIGIN = [300, 300]

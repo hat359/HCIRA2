@@ -3,8 +3,9 @@
 from tkinter import Canvas, Button, Label, Text, PhotoImage 
 from constants import * # importing from constants.py
 from copy import deepcopy
-from recognizer import *
-
+from recognizerV2 import NDollarRecognizer
+from commonUtils import *
+from database import Database
 from time import strftime, sleep
 import json
 import os
@@ -23,14 +24,14 @@ class Board:
             self.createCanvas()
             self.createClearButton()
             self.createPredictionLabels()
-            self.points = []
-            self.temp=[]
             self.createSubmitButton()
+            self.recognizer = NDollarRecognizer(True)
+            self.points = []
+            self.multistrokepoints = []
 
             # Invoking the recognizer module
             # self.recognizer = Recognizer()
-            self.startPointX = 0
-            self.startPointY = 0
+            self.startPoint = Point(0,0)
         # Collection mode will only store user input as it is
         elif self.mode == 'collection':
 
@@ -49,16 +50,16 @@ class Board:
             self.currentUserId = ''
             self.currentGesture = ''
             self.points = []
-            self.startPointX = 0
-            self.startPointY = 0
-
+            self.startPoint = Point(0,0)
             # Create canvas for drawing
             self.createCanvas()
 
             # Create clear button to enable user to clear the canvas
             self.createClearButton()
 
-          
+            # Invoking DB module to store user points with user id in a json
+            self.db = Database()
+
             # Added submit button to enable user to submit their drawing
             self.createSubmitButton()
 
@@ -71,15 +72,6 @@ class Board:
 
             # Label to show reference gesture image to user
             self.createGestureImageLabel()
-    
-    # def collectFromUser(self, userId):
-    #     # Delete any existing user with same userId in DB and start fresh
-    #     self.db.addUser(userId)
-    #     for iteration in range(10):
-    #         shuffle(self.gestureList)
-    #         for gesture in self.gestureList:
-    #             self.setPromptLabel('Please draw a {}'.format(gesture))
-
     
     # Function to create the canvas - drawing board
     # Creates the drawing board and sets mouse bindings to track user click and drag movements
@@ -166,59 +158,91 @@ class Board:
         
     # Handler for clear button click
     def onClearButtonClick(self):
-        self.points.clear() 
+        self.points.clear()
+        self.multistrokepoints.clear()
         # Clears everything on the canvas
         self.board.delete(BOARD_DELETE_MODE)
         print(LOG_BOARD_CLEARED)
-    
-    def onSubmitButtonClick(self):
-        # NDollarRecognizer(True)
-        NDollarRecognizer.Recognize(self,self.points,True,False,False)
-
-    # Function to return last coordinates of the mouse click
-    def getLastCoordinates(self,event):
-        self.startPointX,self.startPointY=event.x,event.y
-
-    # Draws when mouse drag or screen touch event occurs
-    def draw(self, event):
-        
-        self.board.create_line((self.startPointX, self.startPointY, event.x, event.y),fill=BLUE,width=5)
-
-        self.temp.append([event.x,event.y])
-        self.startPointX, self.startPointY = event.x,event.y
-
-    # Draws different states of user input (resampled,rotated,scaled)
-    def reDraw(self, points, color,fxn):
-        if fxn == "resample":
-            for i in range(len(points)):
-                x1, y1, x2, y2 = points[i][0]-2, points[i][1]-2, points[i][0]+2, points[i][1]+2
-                self.board.create_oval(x1+200, y1, x2+200, y2, fill=color, outline=color)
-
-        if fxn == "rotated":
-            for i in range(len(points)):
-                x1, y1, x2, y2 = points[i][0]-2, points[i][1]-2, points[i][0]+2, points[i][1]+2
-                self.board.create_oval(x1+400, y1+100, x2+400, y2+100, fill=color, outline=color)
-        
-        if fxn == "scaled":
-             for i in range(len(points)):
-                x1, y1, x2, y2 = points[i][0]-2, points[i][1]-2, points[i][0]+2, points[i][1]+2
-                self.board.create_oval(x1+400, y1, x2+400, y2, fill=color, outline=color)
 
     # Mouse up event handler
     def mouseUp(self, event):
-        self.points.append(self.temp)
-        self.temp=[]
-        # resampledPoints = self.recognizer.resample(deepcopy(self.points), SAMPLING_POINTS)
-        # # self.reDraw(resampledPoints, RED,"resample")
-        # rotatedPoints = self.recognizer.rotate(resampledPoints)
-        # # self.reDraw(rotatedPoints, ORANGE,"rotated")
-        # scaledPoints = self.recognizer.scale(rotatedPoints, SCALE_FACTOR)
-        # translatedPoints = self.recognizer.translate(scaledPoints, ORIGIN)
-        # self.reDraw(translatedPoints, GREEN,"scaled")
+        self.multistrokepoints.append(deepcopy(self.points))
+        self.points.clear()
+        print(MOUSE_UP)
+    
+    def onSubmitButtonClick(self):
+        if self.mode == 'collection':
+            # Check if a user has been added
+            if not self.userAdded:
+                # Get the user ID from a text box
+                userId = self.userIdTextBox.get(1.0, "end-1c")
+                # Set the current user and add them to the database
+                self.currentUser = userId
+                self.db.addUser(userId)
+                # Display a welcome message to the user
+                self.setPromptLabel('Welcome {}!'.format(userId), 1)
+                # Set userAdded to True to indicate that a user has been added
+                self.userAdded = True
+            
+            # Check if the system is ready to store the gesture drawing
+            if self.readyToStore:
+                # Get the index of the current gesture and add the gesture drawing to the database
+                gestureIndex = (self.gestureIndex - 1)%len(self.gestureList)
+                self.db.addGesture(self.currentUser, self.gestureList[gestureIndex], deepcopy(self.points))
+                # Clear the drawing board and points list
+                self.points.clear()
+                self.board.delete(BOARD_DELETE_MODE)
+            
+            # Check if the user has completed all their drawings
+            if self.userDrawCount < 5:
+                # Get the name of the current gesture and prompt the user to draw it
+                gestureName = self.gestureList[self.gestureIndex]
+                self.setPromptLabel('Please draw a {}'.format(gestureName), 2)
+                # Display an image of the gesture
+                self.setGestureImageLabel(self.loadImage(gestureName))
+                # Update the userDrawCount and gestureIndex variables
+                self.userDrawCount += 1
+                self.gestureIndex = (self.gestureIndex + 1)%len(self.gestureList)
+                # Set readyToStore to True to indicate that the system is ready to store the next drawing
+                self.readyToStore = True
+            else:
+                # If the user has completed all the drawings, display a message and clear the gesture image label
+                self.setPromptLabel('Saving your contribution!', 1)
+                self.setPromptLabel('Thank you for participating, {}!'.format(self.currentUser), 2)
+                self.clearGestureImageLabel()
+                self.root.update()
+                sleep(2)
+                self.setPromptLabel('', 2)
+                # Create an XML file with the collected user logs, reset userDrawCount and gestureIndex, and display a prompt to start again
+                self.createXMLUserLogs()
+                self.userDrawCount = 0
+                self.gestureIndex = 0
+                self.setPromptLabel('Please enter user ID and click Submit to Start!', 1)
+                # Set userAdded and readyToStore to False to indicate that a new user needs to be added and the system is not ready to store a drawing yet
+                self.userAdded = False
+                self.readyToStore = False
+        elif self.mode == 'recognition':
+            for gesture in self.multistrokepoints:
+                for point in gesture:
+                    print(point.display(), end = '')
+                print()
+            print(len(self.multistrokepoints))
+            result = self.recognizer.Recognize(self.multistrokepoints)
+            result.display()
+            self.multistrokepoints.clear()
+            print(LOG_DRAWING_FINISHED)
 
-        # # recognizedGesture, score, time , _= self.recognizer.recognizeGesture(translatedPoints)
-        # self.setPredictionLabels(recognizedGesture, score, time)
-        print(self.points)
+
+    # Function to return last coordinates of the mouse click
+    def getLastCoordinates(self,event):
+        self.startPoint.set(event.x, event.y)
+
+
+    # Draws when mouse drag or screen touch event occurs
+    def draw(self, event):
+        self.board.create_line((self.startPoint.X, self.startPoint.Y, event.x, event.y),fill=BLUE,width=5)
+        self.points.append(Point(event.x, event.y))
+        self.startPoint.set(event.x, event.y)
     
     def createXMLUserLogs(self):
         # Open the JSON file containing the user data and load it into a dictionary
