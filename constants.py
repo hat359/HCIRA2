@@ -29,4 +29,4 @@ SCALE_FACTOR = 300
 ORIGIN = [300, 300]
 GOLDEN_RATIO = 0.618033988749895
 THRESHOLD = 0.0349066
-GESTURE_LIST = ['triangle', 'x', 'rectangle', 'circle', 'check', 'caret', 'zig_zag','arrow','left_square_bracket','right_square_bracket', 'v', 'delete', 'left_curly_brace','right_curly_brace', 'star', 'pigtail']
+GESTURE_LIST = ['1','2','3','4','5','6','7','8','9','0','^','(',')','+','-','/','X']

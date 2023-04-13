@@ -21,7 +21,8 @@ class Database():
         if gesture not in self.data[userId]:
             # print("gesture not in database and user")
             self.data[userId][gesture] = []
-        self.data[userId][gesture].append(points)
+        for unistrokepoints in points:
+            self.data[userId][gesture].append([point.getList() for point in unistrokepoints])
         self.dumpData()
 
     def getData(self):

@@ -17,6 +17,9 @@ class Board:
     def __init__(self, root, mode):
         self.root = root
         self.mode = mode
+        self.points = []
+        self.multistrokepoints = []
+        self.startPoint = Point(0,0)
         # Recognition mode will recognize user inputs
         if self.mode == 'recognition':
             
@@ -26,12 +29,9 @@ class Board:
             self.createPredictionLabels()
             self.createSubmitButton()
             self.recognizer = NDollarRecognizer(True)
-            self.points = []
-            self.multistrokepoints = []
 
             # Invoking the recognizer module
             # self.recognizer = Recognizer()
-            self.startPoint = Point(0,0)
         # Collection mode will only store user input as it is
         elif self.mode == 'collection':
 
@@ -49,8 +49,6 @@ class Board:
             self.gestureIndex = 0
             self.currentUserId = ''
             self.currentGesture = ''
-            self.points = []
-            self.startPoint = Point(0,0)
             # Create canvas for drawing
             self.createCanvas()
 
@@ -71,7 +69,7 @@ class Board:
             self.createUserIdTextBox()
 
             # Label to show reference gesture image to user
-            self.createGestureImageLabel()
+            # self.createGestureImageLabel()
     
     # Function to create the canvas - drawing board
     # Creates the drawing board and sets mouse bindings to track user click and drag movements
@@ -153,8 +151,7 @@ class Board:
         # Creating bindings for board (draw handles mouse down and drag events)
         self.board.bind(MOUSE_CLICK,self.getLastCoordinates)
         self.board.bind(MOUSE_DRAG_MODE, self.draw)
-        if self.mode == 'recognition':
-            self.board.bind(MOUSE_UP_MODE, self.mouseUp)
+        self.board.bind(MOUSE_UP_MODE, self.mouseUp)
         
     # Handler for clear button click
     def onClearButtonClick(self):
@@ -188,18 +185,18 @@ class Board:
             if self.readyToStore:
                 # Get the index of the current gesture and add the gesture drawing to the database
                 gestureIndex = (self.gestureIndex - 1)%len(self.gestureList)
-                self.db.addGesture(self.currentUser, self.gestureList[gestureIndex], deepcopy(self.points))
+                self.db.addGesture(self.currentUser, self.gestureList[gestureIndex], deepcopy(self.multistrokepoints))
                 # Clear the drawing board and points list
-                self.points.clear()
+                self.multistrokepoints.clear()
                 self.board.delete(BOARD_DELETE_MODE)
             
             # Check if the user has completed all their drawings
-            if self.userDrawCount < 5:
+            if self.userDrawCount < len(self.gestureList):
                 # Get the name of the current gesture and prompt the user to draw it
                 gestureName = self.gestureList[self.gestureIndex]
                 self.setPromptLabel('Please draw a {}'.format(gestureName), 2)
                 # Display an image of the gesture
-                self.setGestureImageLabel(self.loadImage(gestureName))
+                # self.setGestureImageLabel(self.loadImage(gestureName))
                 # Update the userDrawCount and gestureIndex variables
                 self.userDrawCount += 1
                 self.gestureIndex = (self.gestureIndex + 1)%len(self.gestureList)
@@ -209,12 +206,12 @@ class Board:
                 # If the user has completed all the drawings, display a message and clear the gesture image label
                 self.setPromptLabel('Saving your contribution!', 1)
                 self.setPromptLabel('Thank you for participating, {}!'.format(self.currentUser), 2)
-                self.clearGestureImageLabel()
+                # self.clearGestureImageLabel()
                 self.root.update()
                 sleep(2)
                 self.setPromptLabel('', 2)
                 # Create an XML file with the collected user logs, reset userDrawCount and gestureIndex, and display a prompt to start again
-                self.createXMLUserLogs()
+                # self.createXMLUserLogs()
                 self.userDrawCount = 0
                 self.gestureIndex = 0
                 self.setPromptLabel('Please enter user ID and click Submit to Start!', 1)

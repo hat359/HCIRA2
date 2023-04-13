@@ -1,6 +1,8 @@
 from recognizerV2Utils import *
 from math import sqrt, sin, cos
 from time import time
+from online_template import template
+from copy import deepcopy
 
 NumMultistrokes = 16
 NumPoints = 96
@@ -46,11 +48,16 @@ class Multistroke:
 class NDollarRecognizer:
     def __init__(self, useBoundedRotationInvariance):
         self.Multistrokes = [] # array of multistrokes
-        self.Multistrokes.append(Multistroke("T",useBoundedRotationInvariance,[[Point(30,7),Point(103,7)],[Point(66,7),Point(66,87)]]))
-        self.Multistrokes.append(Multistroke("N",useBoundedRotationInvariance,[[Point(177,92),Point(177,2)],[Point(182,1),Point(246,95)],[Point(247,87),Point(247,1)]]))
-        self.Multistrokes.append(Multistroke("D",useBoundedRotationInvariance, [[Point(345,9),Point(345,87)],[Point(351,8),Point(363,8),Point(372,9),Point(380,11),Point(386,14),Point(391,17),Point(394,22),Point(397,28),Point(399,34),Point(400,42),Point(400,50),Point(400,56),Point(399,61),Point(397,66),Point(394,70),Point(391,74),Point(386,78),Point(382,81),Point(377,83),Point(372,85),Point(367,87),Point(360,87),Point(355,88),Point(349,87)]]))
-        self.Multistrokes.append(Multistroke("H",True,[[Point(188,137),Point(188,225)],[Point(188,180),Point(241,180)],[Point(241,137),Point(241,225)]]))
-        self.Multistrokes.append(Multistroke("I",True,[[Point(371,149),Point(371,221)],[Point(341,149),Point(401,149)],[Point(341,221),Point(401,221)]]))
+        multiStrokePointSet = []
+        for gesture,unistrokepointsList in template.items():
+            unistrokePointSet = []
+            for pointSet in unistrokepointsList:
+                for point in pointSet:
+                    unistrokePointSet.append(Point(point[0],point[1]))
+                multiStrokePointSet.append(deepcopy(unistrokePointSet))
+                unistrokePointSet.clear()
+            self.Multistrokes.append(Multistroke(gesture,useBoundedRotationInvariance, deepcopy(multiStrokePointSet)))
+            multiStrokePointSet.clear()
         self.useBoundedRotationInvariance = useBoundedRotationInvariance
     
     def Recognize(self, strokes, requireSameNoOfStrokes=False, useProtractor=False):
