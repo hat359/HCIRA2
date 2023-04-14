@@ -25,7 +25,7 @@ class Board:
         self.inputMethod = inputMethod
         self.ignoreDrag = True if self.inputMethod == 'Touch' else False
         # Recognition mode will recognize user inputs
-        if self.mode == 'recognition' or 'segmentation':
+        if self.mode == 'recognition' or self.mode == 'segmentation':
             
             # Create canvas, clear button and label to show predicted gesture, confidence and time taken to predict
             self.createCanvas()
@@ -246,7 +246,9 @@ class Board:
             
             segment = Segment(deepcopy(self.allPoints))
             self.allPoints.clear()
-            self.setPredictionLabels(str(segment.getRecognizedSymbols()))
+            gestureList = segment.getRecognizedSymbols()
+            print(gestureList)
+            self.setPredictionLabels(str(gestureList))
             # Get list of segmented gestures
             # Recognize each gesture
             # Calculate value and return
@@ -264,7 +266,7 @@ class Board:
         if self.ignoreDrag:
             return
         print("Mouse Drag")
-        self.board.create_line((self.startPoint.X, self.startPoint.Y, event.x, event.y),fill=BLUE,width=5)
+        self.board.create_line((self.startPoint.X, self.startPoint.Y, event.x, event.y),fill=BLUE,width=3)
         self.points.append(Point(event.x, event.y))
         self.startPoint.set(event.x, event.y)
     
