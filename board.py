@@ -15,13 +15,15 @@ import os
 from segment import Segment
 
 class Board:
-    def __init__(self, root, mode):
+    def __init__(self, root, mode, inputMethod='Mouse'):
         self.root = root
         self.mode = mode
         self.points = []
         self.multistrokepoints = []
         self.startPoint = Point(0,0)
         self.allPoints = []
+        self.inputMethod = inputMethod
+        self.ignoreDrag = True if self.inputMethod == 'Touch' else False
         # Recognition mode will recognize user inputs
         if self.mode == 'recognition' or 'segmentation':
             
@@ -168,6 +170,7 @@ class Board:
 
     # Mouse up event handler
     def mouseUp(self, event):
+        self.ignoreDrag = True
         self.multistrokepoints.append(deepcopy(self.points))
         self.allPoints.append(deepcopy(self.points))
         self.points.clear()
@@ -251,11 +254,16 @@ class Board:
 
     # Function to return last coordinates of the mouse click
     def getLastCoordinates(self,event):
+        self.ignoreDrag = False
+        print("Mouse Down")
         self.startPoint.set(event.x, event.y)
 
 
     # Draws when mouse drag or screen touch event occurs
     def draw(self, event):
+        if self.ignoreDrag:
+            return
+        print("Mouse Drag")
         self.board.create_line((self.startPoint.X, self.startPoint.Y, event.x, event.y),fill=BLUE,width=5)
         self.points.append(Point(event.x, event.y))
         self.startPoint.set(event.x, event.y)

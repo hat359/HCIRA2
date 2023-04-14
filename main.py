@@ -8,7 +8,7 @@ def main():
 
 def startOnlineRecognizer():
     root = Tk() #initializig the tkinter lib. 
-    board = Board(root, 'segmentation') 
+    board = Board(root, 'segmentation','Touch') 
     root.mainloop()
 
 
