@@ -12,6 +12,7 @@ import os
 from shutil import rmtree
 from xml.dom import minidom
 import os
+from segment import Segment
 
 class Board:
     def __init__(self, root, mode):
@@ -20,8 +21,9 @@ class Board:
         self.points = []
         self.multistrokepoints = []
         self.startPoint = Point(0,0)
+        self.allPoints = []
         # Recognition mode will recognize user inputs
-        if self.mode == 'recognition':
+        if self.mode == 'recognition' or 'segmentation':
             
             # Create canvas, clear button and label to show predicted gesture, confidence and time taken to predict
             self.createCanvas()
@@ -120,10 +122,12 @@ class Board:
         self.gestureImageLabel.destroy()
     
     # Function to set values to prediction labels
-    def setPredictionLabels(self, recognizedGesture, score, time):
+    def setPredictionLabels(self, recognizedGesture, score=None, time=None):
         self.predictedGestureLabel.configure(text="Predicted Gesture = "  + str(recognizedGesture))
-        self.confidenceLabel.configure(text="Confidence = "  + str(round(score,2))) 
-        self.timelabel.configure(text="Time = "  + str(round(time*1000,2)) + " ms" )
+        if score:
+            self.confidenceLabel.configure(text="Confidence = "  + str(round(score,2))) 
+        if time:
+            self.timelabel.configure(text="Time = "  + str(round(time*1000,2)) + " ms" )
 
     # Function to clear prediction labels
     def clearPredictionLables(self):
@@ -157,6 +161,7 @@ class Board:
     def onClearButtonClick(self):
         self.points.clear()
         self.multistrokepoints.clear()
+        self.allPoints.clear()
         # Clears everything on the canvas
         self.board.delete(BOARD_DELETE_MODE)
         print(LOG_BOARD_CLEARED)
@@ -164,6 +169,7 @@ class Board:
     # Mouse up event handler
     def mouseUp(self, event):
         self.multistrokepoints.append(deepcopy(self.points))
+        self.allPoints.append(deepcopy(self.points))
         self.points.clear()
         print(MOUSE_UP)
     
@@ -228,6 +234,19 @@ class Board:
             result.display()
             self.multistrokepoints.clear()
             print(LOG_DRAWING_FINISHED)
+        elif self.mode == 'segmentation':
+            print(len(self.allPoints))
+            for gesture in self.allPoints:
+                for point in gesture:
+                    print(point.display(),end=' ')
+                print()
+            
+            segment = Segment(deepcopy(self.allPoints))
+            self.allPoints.clear()
+            self.setPredictionLabels(str(segment.getRecognizedSymbols()))
+            # Get list of segmented gestures
+            # Recognize each gesture
+            # Calculate value and return
 
 
     # Function to return last coordinates of the mouse click
