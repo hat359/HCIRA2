@@ -18,6 +18,7 @@ class Board:
     def __init__(self, root, mode, inputMethod='Mouse'):
         self.root = root
         self.mode = mode
+        self.calc=[]
         self.points = []
         self.multistrokepoints = []
         self.startPoint = Point(0,0)
@@ -91,13 +92,15 @@ class Board:
     def createClearButton(self):
         self.clearButton = Button(self.root, text=CLEAR_BUTTON_TEXT)
         self.clearButton.configure(command=self.onClearButtonClick)
-        self.clearButton.pack(side = 'left')
+        self.clearButton.place(x=20,y=610)
+        # self.clearButton.pack()
 
     # Function to create a submit button to enable user to submit their drawing
     def createSubmitButton(self):
         self.submitButton = Button(self.root, text=SUBMIT_BUTTON_TEXT)
         self.submitButton.configure(command=self.onSubmitButtonClick)
-        self.submitButton.pack(side = 'left')
+        # self.submitButton.pack(side = 'left')
+        self.submitButton.place(x=150,y=610)
     
     # Function to create lable to show user a reference of the gesture to be drawn
     def createGestureImageLabel(self):
@@ -105,13 +108,17 @@ class Board:
 
     # Function to create labels to show predicted gesture, confidence and time taken to predict
     def createPredictionLabels(self):
+       
         self.predictedGestureLabel = Label(self.root)
         self.confidenceLabel = Label(self.root)
         self.timelabel = Label(self.root)
+        self.resultLabel = Label(self.root)
+        self.resultLabel.place(x=800,y=610)
         # Create bindings for predicted gesture label and confidence label
         self.predictedGestureLabel.pack()
         self.confidenceLabel.pack()
         self.timelabel.pack()
+        
     
     # Function to set image to show the user as a reference
     def setGestureImageLabel(self, img):
@@ -126,10 +133,32 @@ class Board:
     # Function to set values to prediction labels
     def setPredictionLabels(self, recognizedGesture, score=None, time=None):
         self.predictedGestureLabel.configure(text="Predicted Gesture = "  + str(recognizedGesture))
+
         if score:
             self.confidenceLabel.configure(text="Confidence = "  + str(round(score,2))) 
         if time:
             self.timelabel.configure(text="Time = "  + str(round(time*1000,2)) + " ms" )
+
+    
+    def calculation(self, gestureList):
+        st=""
+        for s in gestureList:
+         
+            if s=="X":
+                st+="*"
+                continue
+            st+=s
+        print(st)
+        result =eval(str(st))
+        self.resultLabel.configure(text="Result = "  + str(result))
+        self.createXMLUserLogs()
+        
+
+
+
+        
+       
+
 
     # Function to clear prediction labels
     def clearPredictionLables(self):
@@ -215,6 +244,7 @@ class Board:
                 # If the user has completed all the drawings, display a message and clear the gesture image label
                 self.setPromptLabel('Saving your contribution!', 1)
                 self.setPromptLabel('Thank you for participating, {}!'.format(self.currentUser), 2)
+                createXMLUserLogs()
                 # self.clearGestureImageLabel()
                 self.root.update()
                 sleep(2)
@@ -235,6 +265,7 @@ class Board:
             print(len(self.multistrokepoints))
             result = self.recognizer.Recognize(self.multistrokepoints)
             result.display()
+            print(self.multistrokepoints)
             self.multistrokepoints.clear()
             print(LOG_DRAWING_FINISHED)
         elif self.mode == 'segmentation':
@@ -247,8 +278,10 @@ class Board:
             segment = Segment(deepcopy(self.allPoints))
             self.allPoints.clear()
             gestureList = segment.getRecognizedSymbols()
+            print("ye le ")
             print(gestureList)
             self.setPredictionLabels(str(gestureList))
+            self.calculation(gestureList)
             # Get list of segmented gestures
             # Recognize each gesture
             # Calculate value and return
@@ -287,9 +320,11 @@ class Board:
         if os.path.isdir(log_directory_path):
             rmtree(log_directory_path)
         os.makedirs(log_directory_path)
-
+        subject = 0
         # Iterate over the users in the user data dictionary
         for user in user_data:
+            subject+=1
+            print(user)
 
             # Create a directory for the user in the XML logs directory
             user_path = os.path.join(log_directory_path, user)
@@ -297,38 +332,65 @@ class Board:
 
             # Iterate over the gestures of the user
             for gesture in user_data[user]:
+                print(gesture)
+                ind = len(user_data[user][gesture])
+                print(ind)
+                pointsum=0
+                root = minidom.Document()
+                gestureChild = root.createElement('Gesture')
 
-                # Iterate over each set of points for the gesture
+                # Set the attributes of the gesture element
+                gestureChild.setAttribute('Subject', str(subject))
+                
+                gestureChild.setAttribute('InputType', "Touch")
+                
+                gestureChild.setAttribute('Speed', "Medium")
+                o=0
+                # # Iterate over each set of points for the gesture
                 for i in range(0,len(user_data[user][gesture])):
 
                     # Get the list of points for the gesture
                     pointList = user_data[user][gesture][i]
+                    pointsum+=len(pointList)
+                    
 
                     # Create a new XML document
-                    root = minidom.Document()
-                    gestureChild = root.createElement('Gesture')
-
-                    # Set the attributes of the gesture element
-                    gestureChild.setAttribute('User', str(user))
-                    gestureChild.setAttribute('Gesture', '{}{}'.format(gesture,i+1))
-                    gestureChild.setAttribute('Number', str(i+1))
-                    gestureChild.setAttribute('NumPts', str(len(pointList)))
-                    gestureChild.setAttribute('Date', strftime("%d-%m-%Y"))
-                    gestureChild.setAttribute('Time', strftime("%H:%M:%S"))
+                    gestureChild.setAttribute('Name', '{}~{}'.format(gesture,i+1))
+                    gestureChild.setAttribute('NumPts', str(pointsum))
+                    
+                    # gestureChild.setAttribute('Date', strftime("%d-%m-%Y"))
+                    # gestureChild.setAttribute('Time', strftime("%H:%M:%S"))
 
                     # Append the gesture element to the root element
                     root.appendChild(gestureChild)
 
                     # Iterate over the points of the gesture and create a new point element for each point
+                    
+
+                    # for j in range(1,ind+1):
+                    stroke = root.createElement('Stroke')
+                    stroke.setAttribute('index',str(i+1))
+                    gestureChild.appendChild(stroke)
+
                     for point in pointList:
+                        o+=1
                         pointChild = root.createElement('Point')
                         pointChild.setAttribute('X', str(point[0]))
                         pointChild.setAttribute('Y', str(point[1]))
-                        gestureChild.appendChild(pointChild)
+                        pointChild.setAttribute('T', str(o))
+                        pointChild.setAttribute('Pressure', "128")
+                        stroke.appendChild(pointChild)
 
                     # Get the string representation of the XML document and write it to a file
                     gestureRootString = root.toprettyxml(indent= "\t")
-                    file_name = '{}{}.xml'.format(gesture,'0{}'.format(i+1) if i+1<10 else str(i+1))
+                    # file_name = '{}{}.xml'.format(gesture,'0{}'.format(i+1) if i+1<10 else str(i+1))
+                    if gesture == '/':
+                        file_name = 'div.xml'
+                    else:
+
+                        file_name = '{}.xml'.format(gesture)
                     file_path = os.path.join(user_path, file_name)
                     with open(file_path, "w") as file:
                         file.write(gestureRootString)
+
+    
