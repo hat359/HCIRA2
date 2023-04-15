@@ -151,7 +151,7 @@ class Board:
         print(st)
         result =eval(str(st))
         self.resultLabel.configure(text="Result = "  + str(result))
-        self.createXMLUserLogs()
+        
         
 
 
@@ -221,16 +221,19 @@ class Board:
             
             # Check if the system is ready to store the gesture drawing
             if self.readyToStore:
+                num = self.userDrawCount/(len(self.gestureList))
+                print(num)
+                num = int(num)
                 # Get the index of the current gesture and add the gesture drawing to the database
                 gestureIndex = (self.gestureIndex - 1)%len(self.gestureList)
-                self.db.addGesture(self.currentUser, self.gestureList[gestureIndex], deepcopy(self.multistrokepoints))
+                self.db.addGesture(self.currentUser, self.gestureList[gestureIndex], deepcopy(self.multistrokepoints),num+1)
                 # Clear the drawing board and points list
                 self.multistrokepoints.clear()
                 self.board.delete(BOARD_DELETE_MODE)
             
             # Check if the user has completed all their drawings
-            if self.userDrawCount < len(self.gestureList):
-                # Get the name of the current gesture and prompt the user to draw it
+            if self.userDrawCount < 2*(len(self.gestureList)):
+                # Get the name of the current gesture awnd prompt the user to draw it
                 gestureName = self.gestureList[self.gestureIndex]
                 self.setPromptLabel('Please draw a {}'.format(gestureName), 2)
                 # Display an image of the gesture
@@ -244,13 +247,13 @@ class Board:
                 # If the user has completed all the drawings, display a message and clear the gesture image label
                 self.setPromptLabel('Saving your contribution!', 1)
                 self.setPromptLabel('Thank you for participating, {}!'.format(self.currentUser), 2)
-                createXMLUserLogs()
+                # self.createXMLUserLogs()
                 # self.clearGestureImageLabel()
                 self.root.update()
                 sleep(2)
                 self.setPromptLabel('', 2)
                 # Create an XML file with the collected user logs, reset userDrawCount and gestureIndex, and display a prompt to start again
-                # self.createXMLUserLogs()
+                self.createXMLUserLogs()
                 self.userDrawCount = 0
                 self.gestureIndex = 0
                 self.setPromptLabel('Please enter user ID and click Submit to Start!', 1)
@@ -355,7 +358,7 @@ class Board:
                     
 
                     # Create a new XML document
-                    gestureChild.setAttribute('Name', '{}~{}'.format(gesture,i+1))
+                    gestureChild.setAttribute('Name', '{}'.format(gesture))
                     gestureChild.setAttribute('NumPts', str(pointsum))
                     
                     # gestureChild.setAttribute('Date', strftime("%d-%m-%Y"))
@@ -384,8 +387,8 @@ class Board:
                     # Get the string representation of the XML document and write it to a file
                     gestureRootString = root.toprettyxml(indent= "\t")
                     # file_name = '{}{}.xml'.format(gesture,'0{}'.format(i+1) if i+1<10 else str(i+1))
-                    if gesture == '/':
-                        file_name = 'div.xml'
+                    if "/" in gesture:
+                        file_name = 'div{}.xml'.format(i+1)
                     else:
 
                         file_name = '{}.xml'.format(gesture)
