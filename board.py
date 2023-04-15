@@ -153,6 +153,7 @@ class Board:
         self.resultLabel.configure(text="Result = "  + str(result))
         
         
+        
 
 
 
@@ -388,7 +389,11 @@ class Board:
                     gestureRootString = root.toprettyxml(indent= "\t")
                     # file_name = '{}{}.xml'.format(gesture,'0{}'.format(i+1) if i+1<10 else str(i+1))
                     if "/" in gesture:
-                        file_name = 'div{}.xml'.format(i+1)
+                        newgesture =gesture.replace('/','div')
+                        
+                        print(gesture)
+                        file_name = '{}.xml'.format(newgesture)
+
                     else:
 
                         file_name = '{}.xml'.format(gesture)
