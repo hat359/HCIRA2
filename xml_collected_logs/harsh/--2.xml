@@ -1,21 +1,26 @@
 <?xml version="1.0" ?>
-<Gesture Subject="1" InputType="Touch" Speed="Medium" Name="--2" NumPts="16">
+<Gesture Subject="2" InputType="Touch" Speed="Medium" Name="--2" NumPts="21">
 	<Stroke index="1">
-		<Point X="320" Y="277" T="1" Pressure="128"/>
-		<Point X="327" Y="274" T="2" Pressure="128"/>
-		<Point X="338" Y="271" T="3" Pressure="128"/>
-		<Point X="344" Y="271" T="4" Pressure="128"/>
-		<Point X="349" Y="270" T="5" Pressure="128"/>
-		<Point X="363" Y="267" T="6" Pressure="128"/>
-		<Point X="370" Y="266" T="7" Pressure="128"/>
-		<Point X="378" Y="265" T="8" Pressure="128"/>
-		<Point X="391" Y="262" T="9" Pressure="128"/>
-		<Point X="399" Y="261" T="10" Pressure="128"/>
-		<Point X="406" Y="260" T="11" Pressure="128"/>
-		<Point X="421" Y="258" T="12" Pressure="128"/>
-		<Point X="427" Y="258" T="13" Pressure="128"/>
-		<Point X="432" Y="257" T="14" Pressure="128"/>
-		<Point X="443" Y="257" T="15" Pressure="128"/>
-		<Point X="448" Y="257" T="16" Pressure="128"/>
+		<Point X="350" Y="298" T="1" Pressure="128"/>
+		<Point X="350" Y="296" T="2" Pressure="128"/>
+		<Point X="353" Y="294" T="3" Pressure="128"/>
+		<Point X="356" Y="293" T="4" Pressure="128"/>
+		<Point X="359" Y="291" T="5" Pressure="128"/>
+		<Point X="363" Y="290" T="6" Pressure="128"/>
+		<Point X="368" Y="288" T="7" Pressure="128"/>
+		<Point X="373" Y="286" T="8" Pressure="128"/>
+		<Point X="380" Y="284" T="9" Pressure="128"/>
+		<Point X="387" Y="282" T="10" Pressure="128"/>
+		<Point X="392" Y="279" T="11" Pressure="128"/>
+		<Point X="399" Y="277" T="12" Pressure="128"/>
+		<Point X="406" Y="275" T="13" Pressure="128"/>
+		<Point X="421" Y="271" T="14" Pressure="128"/>
+		<Point X="429" Y="268" T="15" Pressure="128"/>
+		<Point X="436" Y="266" T="16" Pressure="128"/>
+		<Point X="451" Y="263" T="17" Pressure="128"/>
+		<Point X="459" Y="261" T="18" Pressure="128"/>
+		<Point X="466" Y="259" T="19" Pressure="128"/>
+		<Point X="479" Y="257" T="20" Pressure="128"/>
+		<Point X="485" Y="256" T="21" Pressure="128"/>
 	</Stroke>
 </Gesture>
