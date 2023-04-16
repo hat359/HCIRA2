@@ -3,6 +3,7 @@
 import os
 import xml.etree.ElementTree as ET
 from constants import GESTURE_LIST
+from commonUtils import Point
 
 class Parser():
     def __init__(self):
@@ -11,12 +12,13 @@ class Parser():
         for directory in os.listdir(rootdir):
             user = os.path.join(rootdir, directory)
             userName = user.split("/")[-1]
-            print(userName)
+            # print(userName)
             if os.path.isdir(user):
                 self.offline_data[userName] = {}
                 # for speed in os.listdir(user):
                 #     self.offline_data[userName][speed] = {}
                 c=0
+                itrcount=0
                 
 
                 sorted_files = sorted(os.listdir(user))
@@ -28,16 +30,20 @@ class Parser():
 
                 for fileName in sorted_files:
                     # print(fileName)
-                    # c+=1
+                    c+=1
+                    if c%10 == 0 :
+                        itrcount+=1
+
 
                 
                     gestureName = fileName[0]
                     if gestureName == 'd':
                         gestureName='/'
                     
-                    print(gestureName)
-                    itrname = self.getCleanedFileName(fileName)
-                    print(itrname)
+                    # print(gestureName)
+                    # itrname = self.getCleanedFileName(fileName)
+                    itrname = str((c-(itrcount*10))%10)
+                    # print(itrname)
                     if gestureName in self.offline_data[userName]:
                         # self.offline_data[userName][gestureName][itrname]=[]
                         self.offline_data[userName][gestureName][itrname]=self.getCoordinatesFromXML(user + "/" + fileName)
@@ -45,7 +51,7 @@ class Parser():
                         self.offline_data[userName][gestureName]={}
                         # self.offline_data[userName][gestureName][itrname]=[]
                         self.offline_data[userName][gestureName][itrname]=self.getCoordinatesFromXML(user + "/" + fileName)
-            print(self.offline_data)
+            #print(self.offline_data)
         
                 # print(c)
     def getCoordinatesFromXML(self, fileLocation):
@@ -54,7 +60,7 @@ class Parser():
         for stroke in root:
             tempstroke=[]
             for point in stroke:
-                tempstroke.append([int(point.attrib['X']), int(point.attrib['Y'])])
+                tempstroke.append(Point(int(point.attrib['X']), int(point.attrib['Y'])))
             points.append(tempstroke)
             
         return points

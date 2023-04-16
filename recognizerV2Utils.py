@@ -153,6 +153,7 @@ def CombineStrokes(strokes):
     points = []
     for s in range(len(strokes)):
         for p in range(len(strokes[s])):
+            # print(strokes[s][p].Y)
             points.append(Point(strokes[s][p].X, strokes[s][p].Y))
     return points
 

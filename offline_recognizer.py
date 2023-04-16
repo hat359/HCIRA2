@@ -1,7 +1,7 @@
 #Authors - Harsh Athavale & Abdul Samadh Azath
 
-from xml_parser import Parser
-from recognizer import Recognizer
+from parser import Parser
+from recognizerV2 import NDollarRecognizer
 from copy import deepcopy
 from random import randint, shuffle
 from json import dumps
@@ -10,11 +10,11 @@ import csv
 class OfflineRecognizer(): #Offline recognizer code
     def __init__(self): # this initilizes the data structures
         self.parser = Parser()
-        self.recognizer = Recognizer()
+        self.recognizer = NDollarRecognizer(True)
         # Load offline data
         self.offlineData = self.parser.getOfflineData()
         # Pre process offline data
-        self.preProcessOfflineData()
+        # self.preProcessOfflineData()
         # Recognize offline data
         self.recognizeOfflineData()
 
@@ -35,12 +35,12 @@ class OfflineRecognizer(): #Offline recognizer code
         logcsv = [] # list to store theh logfile contents 
         total=0 # total iterations
         correct=0  # number of correct matches 
-        iterations = 10
-        examples_start, examples_end = 1,9
+        iterations = 2
+        examples_start, examples_end = 1,2
         user_count = 0
-        total_examples = (examples_end - examples_start + 1)*len(self.preProcessedData)
+        total_examples = (examples_end - examples_start + 1)*len(self.offlineData)
         example_count = 0
-        for user in self.preProcessedData: # For each user
+        for user in self.offlineData: # For each user
             user_count += 1
             score[user] = {}
             for example in range(examples_start,examples_end+1): # For each example from 1 to 9
@@ -55,19 +55,26 @@ class OfflineRecognizer(): #Offline recognizer code
                     # print(len(self.preProcessedData[user]['medium']['arrow'][0]))
                     
                     # Get training and testing set
-                    training_set, testing_set = self.getSplitData(self.preProcessedData[user], example, user)
+                    training_set, testing_set = self.getSplitData(self.offlineData[user], example, user)
                     items = list(training_set.items())
                     shuffle(items)
                     training_set = dict(items)
+                    # print(training_set)
                     # print(len(training_set))
                     # print(len(testing_set))
-                    recognizer = Recognizer(training_set) # loads the recognizer with training templates. 
+                    recognizer = NDollarRecognizer(training_set) # loads the recognizer with training templates. 
 
                     for gesture_raw,points in testing_set.items(): # iterates through each gesture in the training set and predicts the gesture. 
                         gesture = gesture_raw.split('-')[0]
                         if gesture not in score[user][example]:
                             score[user][example][gesture] = 0
-                        recognizedGesture_raw, recognitionScore, _,Nbest = recognizer.recognizeGesture(points)
+
+                        print("print krr rha hu bc ")  
+                        print(points) 
+                        # recognizedGesture_raw, recognitionScore, _,Nbest = recognizer.Recognize(points)
+                        Result = recognizer.Recognize(points)
+                        recognizedGesture_raw, recognitionScore = Result.Name,Result.Score
+
                         recognizedGesture = recognizedGesture_raw.split('-')[0]
                         # print(recognizedGesture)
 
@@ -84,7 +91,7 @@ class OfflineRecognizer(): #Offline recognizer code
                         log['Correct or Incorrect'] = 1 if recognizedGesture == gesture else 0
                         log['RecoResultScore'] = round(recognitionScore,3)
                         log['RecoResultBestMatch'] = recognizedGesture_raw
-                        log['RecoResultNBestSorted'] = self.getTopN(Nbest,50)
+                        # log['RecoResultNBestSorted'] = self.getTopN(Nbest,50)
                         
                         logcsv.append(log)
                         if recognizedGesture == gesture:
@@ -100,15 +107,17 @@ class OfflineRecognizer(): #Offline recognizer code
         training_set = {}
         testing_set = {}
         for gesture,points in gestures.items(): # For each gesture pick E training examples and 1 testing example
+            # print("idharr")
+            # print(points)
             random_list = [i for i in range(0,10)]
             shuffle(random_list)
             training_examples = []
             for i in range(0,E):
                 training_examples.append(random_list[i])
             for i in training_examples:
-                training_set["{}-{}-E{}".format(gesture,user,i+1)] = points[i]
+                training_set["{}-{}-E{}".format(gesture,user,i+1)] = points[str(i)]
             testing_example = random_list[E]
-            testing_set["{}-{}-E{}".format(gesture,user, testing_example+1)] = points[testing_example]
+            testing_set["{}-{}-E{}".format(gesture,user, testing_example+1)] = points[str(testing_example)]
         return training_set, testing_set
     
     def writeToFile(self, data, filename): # writes score to file. 

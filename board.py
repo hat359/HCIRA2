@@ -266,10 +266,11 @@ class Board:
                 for point in gesture:
                     print(point.display(), end = '')
                 print()
-            print(len(self.multistrokepoints))
+            # print("ye hai points bc")
+            # print(self.multistrokepoints)
             result = self.recognizer.Recognize(self.multistrokepoints)
             result.display()
-            print(self.multistrokepoints)
+            # print(self.multistrokepoints)
             self.multistrokepoints.clear()
             print(LOG_DRAWING_FINISHED)
         elif self.mode == 'segmentation':
@@ -336,7 +337,7 @@ class Board:
 
             # Iterate over the gestures of the user
             for gesture in user_data[user]:
-                print(gesture)
+                # print(gesture)
                 ind = len(user_data[user][gesture])
                 print(ind)
                 pointsum=0
@@ -391,7 +392,7 @@ class Board:
                     if "/" in gesture:
                         newgesture =gesture.replace('/','div')
                         
-                        print(gesture)
+                        # print(gesture)
                         file_name = '{}.xml'.format(newgesture)
 
                     else:
