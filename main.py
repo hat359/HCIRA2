@@ -1,6 +1,6 @@
 from tkinter import Tk #tkinter library for GUI 
 from board import Board #board.py contains all the functions. 
-from parser import Parser
+from xmlparser import Parser
 from offline_recognizer import OfflineRecognizer
 
 def main():

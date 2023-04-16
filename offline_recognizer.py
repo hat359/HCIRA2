@@ -1,6 +1,6 @@
 #Authors - Harsh Athavale & Abdul Samadh Azath
 
-from parser import Parser
+from xmlparser import Parser
 from recognizerV2 import NDollarRecognizer
 from copy import deepcopy
 from random import randint, shuffle
