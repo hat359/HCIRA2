@@ -5,14 +5,14 @@ Phi = 0.5 * (-1.0 + sqrt(5.0))
 def Resample(points, n):
     I = PathLength(points) / (n - 1) # interval length
     D = 0.0
-    newpoints = [Point(points[0].X, points[0].Y)]
+    newpoints = [[points[0][0], points[0][1]]]
     i = 1
     while i < len(points):
         d = Distance(points[i-1], points[i])
         if (D + d) >= I:
-            qx = points[i-1].X + ((I - D) / d) * (points[i].X - points[i-1].X)
-            qy = points[i-1].Y + ((I - D) / d) * (points[i].Y - points[i-1].Y)
-            q = Point(qx, qy)
+            qx = points[i-1][0] + ((I - D) / d) * (points[i][0] - points[i-1][0])
+            qy = points[i-1][1] + ((I - D) / d) * (points[i][1] - points[i-1][1])
+            q = [qx,qy]
             newpoints.append(q) # append new point 'q'
             points.insert(i, q) # insert 'q' at position i in points so that 'q' will be the next i
             D = 0.0
@@ -20,12 +20,12 @@ def Resample(points, n):
             D += d
         i += 1
     if len(newpoints) == n - 1: # sometimes we fall a rounding-error short of adding the last point, so add it if so
-        newpoints.append(Point(points[-1].X, points[-1].Y))
+        newpoints.append([points[-1][0], points[-1][1]])
     return newpoints
 
 def IndicativeAngle(points):
     c = Centroid(points)
-    return atan2(c.Y - points[0].Y, c.X - points[0].X)
+    return atan2(c[1] - points[0][1], c[0] - points[0][0])
 
 def RotateBy(points, radians):
     c = Centroid(points)
@@ -33,28 +33,30 @@ def RotateBy(points, radians):
     sine = sin(radians)
     newpoints = []
     for p in points:
-        qx = (p.X - c.X) * cosine - (p.Y - c.Y) * sine + c.X
-        qy = (p.X - c.X) * sine + (p.Y - c.Y) * cosine + c.Y
-        newpoints.append(Point(qx, qy))
+        qx = (p[0] - c[0]) * cosine - (p[1] - c[1]) * sine + c[0]
+        qy = (p[0] - c[0]) * sine + (p[1] - c[1]) * cosine + c[1]
+        newpoints.append([qx,qy])
     return newpoints
 
 def ScaleDimTo(points, size, ratio1D):
     R = BoundingBox(points)
+    R.Height = 0.1 if R.Height == 0 else R.Height
+    R.Width = 0.1 if R.Width == 0 else R.Width
     uniformly = min(R.Width / R.Height, R.Height / R.Width) <= ratio1D  # 1D or 2D gesture test
     newpoints = []
     for p in points:
-        qx = p.X * (size / max(R.Width, R.Height)) if uniformly else p.X * (size / R.Width)
-        qy = p.Y * (size / max(R.Width, R.Height)) if uniformly else p.Y * (size / R.Height)
-        newpoints.append(Point(qx, qy))
+        qx = p[0] * (size / max(R.Width, R.Height)) if uniformly else p[0] * (size / R.Width)
+        qy = p[1] * (size / max(R.Width, R.Height)) if uniformly else p[1] * (size / R.Height)
+        newpoints.append([qx,qy])
     return newpoints
 
 def TranslateTo(points, pt):
     c = Centroid(points)
     newpoints = []
     for p in points:
-        qx = p.X + pt.X - c.X
-        qy = p.Y + pt.Y - c.Y
-        newpoints.append(Point(qx, qy))
+        qx = p[0] + pt[0] - c[0]
+        qy = p[1] + pt[1] - c[1]
+        newpoints.append([qx,qy])
     return newpoints
 
 def Deg2Rad(d):
@@ -67,23 +69,19 @@ def PathLength(points):
     return length
 
 def Distance(p1, p2):
-    dx = p2.X - p1.X
-    dy = p2.Y - p1.Y
+    dx = p2[0] - p1[0]
+    dy = p2[1] - p1[1]
     return sqrt(dx*dx + dy*dy)
-
-def LogPoints(points):
-    for point in points:
-        print(point.display(),end=' ')
 
 def Centroid(points):
     x = 0.0
     y = 0.0
     for p in points:
-        x += p.X
-        y += p.Y
+        x += p[0]
+        y += p[1]
     x /= len(points)
     y /= len(points)
-    return Point(x, y)
+    return [x,y]
 
 def BoundingBox(points):
     minX = float('inf')
@@ -91,30 +89,30 @@ def BoundingBox(points):
     minY = float('inf')
     maxY = float('-inf')
     for p in points:
-        minX = min(minX, p.X)
-        minY = min(minY, p.Y)
-        maxX = max(maxX, p.X)
-        maxY = max(maxY, p.Y)
+        minX = min(minX, p[0])
+        minY = min(minY, p[1])
+        maxX = max(maxX, p[0])
+        maxY = max(maxY, p[1])
     return Rectangle(minX, minY, maxX - minX, maxY - minY)
 
 def CalcStartUnitVector(points, index):
-    v = Point(points[index].X - points[0].X, points[index].Y - points[0].Y)
-    len = ((v.X ** 2) + (v.Y ** 2)) ** 0.5
-    return Point(v.X / len, v.Y / len)
+    v = [points[index][0] - points[0][0], points[index][1] - points[0][1]]
+    len = ((v[0] ** 2) + (v[1] ** 2)) ** 0.5
+    return [v[0] / len, v[1] / len]
 
 def Vectorize(points, useBoundedRotationInvariance):
     cosine = 1.0
     sine = 0.0
     if useBoundedRotationInvariance:
-        iAngle = atan2(points[0].Y, points[0].X)
+        iAngle = atan2(points[0][1], points[0][0])
         baseOrientation = (pi / 4.0) * floor((iAngle + pi / 8.0) / (pi / 4.0))
         cosine = cos(baseOrientation - iAngle)
         sine = sin(baseOrientation - iAngle)
     sum = 0.0
     vector = []
     for i in range(len(points)):
-        newX = points[i].X * cosine - points[i].Y * sine
-        newY = points[i].Y * cosine + points[i].X * sine
+        newX = points[i][0] * cosine - points[i][1] * sine
+        newY = points[i][1] * cosine + points[i][0] * sine
         vector.append(newX)
         vector.append(newY)
         sum += newX * newX + newY * newY
@@ -153,13 +151,13 @@ def CombineStrokes(strokes):
     points = []
     for s in range(len(strokes)):
         for p in range(len(strokes[s])):
-            # print(strokes[s][p].Y)
-            points.append(Point(strokes[s][p].X, strokes[s][p].Y))
+            # print(strokes[s][p][1])
+            points.append([strokes[s][p][0], strokes[s][p][1]])
     return points
 
 
 def AngleBetweenUnitVectors(v1, v2):
-    n = (v1.X * v2.X + v1.Y * v2.Y)
+    n = (v1[0] * v2[0] + v1[1] * v2[1])
     c = max(-1.0, min(1.0, n)) # ensure [-1,+1]
     return acos(c) # arc cosine of the vector dot product
 

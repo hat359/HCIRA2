@@ -1,18 +1,3 @@
-class Point:
-    def __init__(self, x, y):
-        self.X = x
-        self.Y = y
-
-    def display(self):
-        return '({},{})'.format(int(self.X), int(self.Y))
-    
-    def set(self,x,y):
-        self.X = x
-        self.Y = y
-    
-    def getList(self):
-        return [self.X, self.Y]
-
 class Rectangle:
     def __init__(self, x, y, width, height):
         self.X = x

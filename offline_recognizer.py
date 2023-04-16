@@ -10,25 +10,14 @@ import csv
 class OfflineRecognizer(): #Offline recognizer code
     def __init__(self): # this initilizes the data structures
         self.parser = Parser()
-        self.recognizer = NDollarRecognizer(True)
+        # self.recognizer = NDollarRecognizer(True)
         # Load offline data
         self.offlineData = self.parser.getOfflineData()
+        # print(dumps(self.offlineData))
         # Pre process offline data
         # self.preProcessOfflineData()
         # Recognize offline data
         self.recognizeOfflineData()
-
-    def preProcessOfflineData(self): # this preprocesses all the data points from the xml. 
-        self.preProcessedData = deepcopy(self.offlineData)
-        for user in self.offlineData:
-            # for speed in self.offlineData[user]:
-            for gesture in self.offlineData[user]:
-                self.preProcessedData[user][gesture] = []
-                for points in self.offlineData[user][gesture]:
-                    # Pre processing loaded xml data using the preprocesser function in recognizer
-                    self.preProcessedData[user][gesture].append(self.recognizer.getPreProcessPoints(points))
-        # print(len(self.preProcessedData['s02']['medium']['arrow'][0]))
-        # print(len(self.offlineData['s02']['medium']['arrow'][0]))
     
     def recognizeOfflineData(self): # this is the main loop 
         score = {} #dict to store the scores
@@ -56,26 +45,27 @@ class OfflineRecognizer(): #Offline recognizer code
                     
                     # Get training and testing set
                     training_set, testing_set = self.getSplitData(self.offlineData[user], example, user)
-                    items = list(training_set.items())
-                    shuffle(items)
-                    training_set = dict(items)
+
+                    # items = list(training_set.items())
+                    # shuffle(items)
+                    # training_set = dict(items)
                     # print(training_set)
                     # print(len(training_set))
                     # print(len(testing_set))
-                    recognizer = NDollarRecognizer(training_set) # loads the recognizer with training templates. 
+                    recognizer = NDollarRecognizer(True,training_set) # loads the recognizer with training templates. 
 
                     for gesture_raw,points in testing_set.items(): # iterates through each gesture in the training set and predicts the gesture. 
-                        gesture = gesture_raw.split('-')[0]
+                        gesture = gesture_raw.split('|')[0]
                         if gesture not in score[user][example]:
                             score[user][example][gesture] = 0
 
-                        print("print krr rha hu bc ")  
-                        print(points) 
+                        # print("print krr rha hu bc ")  
+                        # print(points) 
                         # recognizedGesture_raw, recognitionScore, _,Nbest = recognizer.Recognize(points)
                         Result = recognizer.Recognize(points)
                         recognizedGesture_raw, recognitionScore = Result.Name,Result.Score
 
-                        recognizedGesture = recognizedGesture_raw.split('-')[0]
+                        recognizedGesture = recognizedGesture_raw.split('|')[0]
                         # print(recognizedGesture)
 
                         #data structure for storing logfile results. 
@@ -103,21 +93,21 @@ class OfflineRecognizer(): #Offline recognizer code
         self.writeToCsv(logcsv,'logfile.csv', totalAverageAccuracy, score, iterations, examples_end-examples_start+1)
     
 
-    def getSplitData(self, gestures, E, user): # this splits the data into training and testing. 
+    def getSplitData(self, gestures, E, user): # this splits the data into training and testing.
         training_set = {}
         testing_set = {}
         for gesture,points in gestures.items(): # For each gesture pick E training examples and 1 testing example
-            # print("idharr")
-            # print(points)
-            random_list = [i for i in range(0,10)]
+            random_list = [i for i in range(0,E+1)]
             shuffle(random_list)
             training_examples = []
             for i in range(0,E):
                 training_examples.append(random_list[i])
             for i in training_examples:
-                training_set["{}-{}-E{}".format(gesture,user,i+1)] = points[str(i)]
+                training_set["{}|{}|E{}".format(gesture,user,i+1)] = points[str(i)]
             testing_example = random_list[E]
-            testing_set["{}-{}-E{}".format(gesture,user, testing_example+1)] = points[str(testing_example)]
+            # print("----------------------")
+            # print(points)
+            testing_set["{}|{}|E{}".format(gesture,user, testing_example+1)] = points[str(testing_example)]
         return training_set, testing_set
     
     def writeToFile(self, data, filename): # writes score to file. 

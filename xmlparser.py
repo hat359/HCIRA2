@@ -3,7 +3,6 @@
 import os
 import xml.etree.ElementTree as ET
 from constants import GESTURE_LIST
-from commonUtils import Point
 
 class Parser():
     def __init__(self):
@@ -60,7 +59,8 @@ class Parser():
         for stroke in root:
             tempstroke=[]
             for point in stroke:
-                tempstroke.append(Point(int(point.attrib['X']), int(point.attrib['Y'])))
+                tempstroke.append([int(point.attrib['X']), int(point.attrib['Y'])])
+                # tempstroke.append(Point(int(point.attrib['X']), int(point.attrib['Y'])))
             points.append(tempstroke)
             
         return points

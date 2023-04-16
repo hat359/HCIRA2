@@ -21,7 +21,7 @@ class Board:
         self.calc=[]
         self.points = []
         self.multistrokepoints = []
-        self.startPoint = Point(0,0)
+        self.startPoint = [0,0]
         self.allPoints = []
         self.inputMethod = inputMethod
         self.ignoreDrag = True if self.inputMethod == 'Touch' else False
@@ -148,7 +148,7 @@ class Board:
                 st+="*"
                 continue
             st+=s
-        print(st)
+        # print(st)
         result =eval(str(st))
         self.resultLabel.configure(text="Result = "  + str(result))
         
@@ -223,7 +223,7 @@ class Board:
             # Check if the system is ready to store the gesture drawing
             if self.readyToStore:
                 num = self.userDrawCount/(len(self.gestureList))
-                print(num)
+                # print(num)
                 num = int(num)
                 # Get the index of the current gesture and add the gesture drawing to the database
                 gestureIndex = (self.gestureIndex - 1)%len(self.gestureList)
@@ -262,10 +262,6 @@ class Board:
                 self.userAdded = False
                 self.readyToStore = False
         elif self.mode == 'recognition':
-            for gesture in self.multistrokepoints:
-                for point in gesture:
-                    print(point.display(), end = '')
-                print()
             # print("ye hai points bc")
             # print(self.multistrokepoints)
             result = self.recognizer.Recognize(self.multistrokepoints)
@@ -274,17 +270,11 @@ class Board:
             self.multistrokepoints.clear()
             print(LOG_DRAWING_FINISHED)
         elif self.mode == 'segmentation':
-            print(len(self.allPoints))
-            for gesture in self.allPoints:
-                for point in gesture:
-                    print(point.display(),end=' ')
-                print()
-            
             segment = Segment(deepcopy(self.allPoints))
             self.allPoints.clear()
             gestureList = segment.getRecognizedSymbols()
-            print("ye le ")
-            print(gestureList)
+            # print("ye le ")
+            # print(gestureList)
             self.setPredictionLabels(str(gestureList))
             self.calculation(gestureList)
             # Get list of segmented gestures
@@ -296,7 +286,7 @@ class Board:
     def getLastCoordinates(self,event):
         self.ignoreDrag = False
         print("Mouse Down")
-        self.startPoint.set(event.x, event.y)
+        self.startPoint = [event.x,event.y]
 
 
     # Draws when mouse drag or screen touch event occurs
@@ -304,9 +294,9 @@ class Board:
         if self.ignoreDrag:
             return
         print("Mouse Drag")
-        self.board.create_line((self.startPoint.X, self.startPoint.Y, event.x, event.y),fill=BLUE,width=3)
-        self.points.append(Point(event.x, event.y))
-        self.startPoint.set(event.x, event.y)
+        self.board.create_line((self.startPoint[0], self.startPoint[1], event.x, event.y),fill=BLUE,width=3)
+        self.points.append([event.x,event.y])
+        self.startPoint = [event.x, event.y]
     
     def createXMLUserLogs(self):
         # Open the JSON file containing the user data and load it into a dictionary

@@ -23,7 +23,7 @@ class Segment():
         return False
 
     def getEucledianDistance(self, pointA, pointB):
-        return sqrt((pointA.X - pointB.X)**2 + (pointA.Y - pointB.Y)**2)
+        return sqrt((pointA[0] - pointB[0])**2 + (pointA[1] - pointB[1])**2)
 
     def startSegmentation(self):
         skipEvaluation = False
