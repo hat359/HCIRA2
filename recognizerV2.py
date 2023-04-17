@@ -62,15 +62,17 @@ class NDollarRecognizer:
             multiStrokePointSet.clear()
         self.useBoundedRotationInvariance = useBoundedRotationInvariance
     
-    def Recognize(self, strokes, requireSameNoOfStrokes=False, useProtractor=False):
+    def Recognize(self, strokes, requireSameNoOfStrokes=False, useProtractor=False, with_Nbest = False):
         t0 = time()
         points = CombineStrokes(strokes) # make one connected unistroke from the given strokes
         candidate = Unistroke("", self.useBoundedRotationInvariance, points)
 
         u = -1
         b = float('inf')
+        n_best_list = {}
         for i in range(len(self.Multistrokes)): # for each multistroke template
             if not requireSameNoOfStrokes or len(strokes) == self.Multistrokes[i].NumStrokes: # optional -- only attempt match when same # of component strokes
+                min_d = 1
                 for j in range(len(self.Multistrokes[i].Unistrokes)): # for each unistroke within this multistroke
                     if AngleBetweenUnitVectors(candidate.StartUnitVector, self.Multistrokes[i].Unistrokes[j].StartUnitVector) <= AngleSimilarityThreshold: # strokes start in the same direction
                         d = 0
@@ -78,12 +80,21 @@ class NDollarRecognizer:
                             d = OptimalCosineDistance(self.Multistrokes[i].Unistrokes[j].Vector, candidate.Vector) # Protractor
                         else:
                             d = DistanceAtBestAngle(candidate.Points, self.Multistrokes[i].Unistrokes[j], -AngleRange, +AngleRange, AnglePrecision) # Golden Section Search (original $N)
+                        if d < min_d:
+                            min_d = d
                         if d < b:
                             b = d # best (least) distance
                             u = i # multistroke owner of unistroke
+                        if self.Multistrokes[i].Name not in n_best_list:
+                            n_best_list[self.Multistrokes[i].Name] = round(1.0-d/HalfDiagonal,3)
+                        else:
+                            n_best_list[self.Multistrokes[i].Name] = max(n_best_list[self.Multistrokes[i].Name],round(1.0-d/HalfDiagonal,3))
         t1 = time()
-        return Result("No match.", 0.0, t1-t0) if u == -1 else Result(self.Multistrokes[u].Name, 1.0 - b if useProtractor else 1.0 - b / HalfDiagonal, t1-t0)
-    
+        Nbest = dict(sorted(n_best_list.items(), key=lambda x:x[1], reverse=True))
+        if with_Nbest:
+            return Result("No match.", 0.0, t1-t0) if u == -1 else Result(self.Multistrokes[u].Name, 1.0 - b if useProtractor else 1.0 - b / HalfDiagonal, t1-t0), Nbest
+        else:
+            return Result("No match.", 0.0, t1-t0) if u == -1 else Result(self.Multistrokes[u].Name, 1.0 - b if useProtractor else 1.0 - b / HalfDiagonal, t1-t0)
     def AddGesture(self, name, strokes):
         self.Multistrokes.append(Multistroke(name, self.useBoundedRotationInvariance, strokes))
         num = sum(1 for m in self.Multistrokes if m.Name == name)

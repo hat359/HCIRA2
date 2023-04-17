@@ -51,7 +51,7 @@ class Segment():
     def startRecognition(self):
         for recognitionObject in self.recognitionObjects:
             result = self.recognizer.Recognize(recognitionObject)
-            self.recognizedEquation.append(result.Name)
+            self.recognizedEquation.append(result.Name[0])
 
     def getRecognizedSymbols(self):
         return self.recognizedEquation

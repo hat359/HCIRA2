@@ -25,7 +25,7 @@ class OfflineRecognizer(): #Offline recognizer code
         total=0 # total iterations
         correct=0  # number of correct matches 
         iterations = 2
-        examples_start, examples_end = 1,2
+        examples_start, examples_end = 1,9
         user_count = 0
         total_examples = (examples_end - examples_start + 1)*len(self.offlineData)
         example_count = 0
@@ -46,9 +46,9 @@ class OfflineRecognizer(): #Offline recognizer code
                     # Get training and testing set
                     training_set, testing_set = self.getSplitData(self.offlineData[user], example, user)
 
-                    # items = list(training_set.items())
-                    # shuffle(items)
-                    # training_set = dict(items)
+                    items = list(training_set.items())
+                    shuffle(items)
+                    training_set = dict(items)
                     # print(training_set)
                     # print(len(training_set))
                     # print(len(testing_set))
@@ -62,7 +62,7 @@ class OfflineRecognizer(): #Offline recognizer code
                         # print("print krr rha hu bc ")  
                         # print(points) 
                         # recognizedGesture_raw, recognitionScore, _,Nbest = recognizer.Recognize(points)
-                        Result = recognizer.Recognize(points)
+                        Result, NBest= recognizer.Recognize(points,with_Nbest=True)
                         recognizedGesture_raw, recognitionScore = Result.Name,Result.Score
 
                         recognizedGesture = recognizedGesture_raw.split('|')[0]
@@ -81,7 +81,7 @@ class OfflineRecognizer(): #Offline recognizer code
                         log['Correct or Incorrect'] = 1 if recognizedGesture == gesture else 0
                         log['RecoResultScore'] = round(recognitionScore,3)
                         log['RecoResultBestMatch'] = recognizedGesture_raw
-                        # log['RecoResultNBestSorted'] = self.getTopN(Nbest,50)
+                        log['RecoResultNBestSorted'] = self.getTopN(NBest,50)
                         
                         logcsv.append(log)
                         if recognizedGesture == gesture:
@@ -97,7 +97,7 @@ class OfflineRecognizer(): #Offline recognizer code
         training_set = {}
         testing_set = {}
         for gesture,points in gestures.items(): # For each gesture pick E training examples and 1 testing example
-            random_list = [i for i in range(0,E+1)]
+            random_list = [i for i in range(0,10)]
             shuffle(random_list)
             training_examples = []
             for i in range(0,E):
@@ -138,7 +138,7 @@ class OfflineRecognizer(): #Offline recognizer code
                         gestureSum = 0
                         for gesture in score[user][example]:
                             gestureSum += score[user][example][gesture]
-                        gestureAccuracy = ((gestureSum/(16*iterations)))*100
-                        writer.writerow({'User':'Accuracy for User:{} E:{}'.format(user,example),'Gesture Type':gestureAccuracy})
+                        gestureAccuracy = ((gestureSum/(17*iterations)))*100
+                        writer.writerow({'User':'Accuracy for User:{} E:{}'.format(user,example),'Gesture Type':round(gestureAccuracy,1)})
         except IOError:
             print("I/O error")

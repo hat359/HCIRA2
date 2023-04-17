@@ -4,8 +4,8 @@ from xmlparser import Parser
 from offline_recognizer import OfflineRecognizer
 
 def main():
-    # startOnlineRecognizer()
-    startOfflineRecognizer()
+    startOnlineRecognizer()
+    # startOfflineRecognizer()
     # self.parser = Parser()
     
         # Load offline data
@@ -13,7 +13,7 @@ def main():
 
 def startOnlineRecognizer():
     root = Tk() #initializig the tkinter lib. 
-    board = Board(root, 'recognition','Touch') 
+    board = Board(root, 'segmentation','Touch') 
     root.mainloop()
 
 
