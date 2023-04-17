@@ -6,6 +6,7 @@ from copy import deepcopy
 from random import randint, shuffle
 from json import dumps
 import csv
+from constants import GESTURE_LIST
 
 class OfflineRecognizer(): #Offline recognizer code
     def __init__(self): # this initilizes the data structures
@@ -24,7 +25,7 @@ class OfflineRecognizer(): #Offline recognizer code
         logcsv = [] # list to store theh logfile contents 
         total=0 # total iterations
         correct=0  # number of correct matches 
-        iterations = 2 # number of iterations
+        iterations = 10 # number of iterations
         examples_start, examples_end = 1,9 # Start and End number of examples
         user_count = 0
         total_examples = (examples_end - examples_start + 1)*len(self.offlineData)
@@ -137,7 +138,7 @@ class OfflineRecognizer(): #Offline recognizer code
                         gestureSum = 0
                         for gesture in score[user][example]:
                             gestureSum += score[user][example][gesture]
-                        gestureAccuracy = ((gestureSum/(17*iterations)))*100
+                        gestureAccuracy = ((gestureSum/(len(GESTURE_LIST)*iterations)))*100
                         writer.writerow({'User':'Accuracy for User:{} E:{}'.format(user,example),'Gesture Type':round(gestureAccuracy,1)})
         except IOError:
             print("I/O error")
