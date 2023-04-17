@@ -17,26 +17,34 @@ from segment import Segment
 class Board:
     def __init__(self, root, mode, inputMethod='Mouse'):
         self.root = root
+        # mode defines if the operation to be performed is collection, segmentation or recognition
         self.mode = mode
         self.calc=[]
+        # Stores every unistroke
         self.points = []
+        # Stores a set of unistrokes
         self.multistrokepoints = []
+        # Stores start point
         self.startPoint = [0,0]
+        # Stores all the strokes in segmentation
         self.allPoints = []
+        # Input method defines if the input is optimized for touch or mouse eventsd
         self.inputMethod = inputMethod
+        # Touch input falsely detects drag before screen touch, to compensate it we must
+        # ignore the first drag event
         self.ignoreDrag = True if self.inputMethod == 'Touch' else False
-        # Recognition mode will recognize user inputs
+        
         if self.mode == 'recognition' or self.mode == 'segmentation':
             
-            # Create canvas, clear button and label to show predicted gesture, confidence and time taken to predict
+            # Create canvas, clear/submit button and label to show predicted gesture, confidence and time taken to predict
             self.createCanvas()
             self.createClearButton()
             self.createPredictionLabels()
             self.createSubmitButton()
+
+            # Initilize online recognizer using  the template in online_template.py
             self.recognizer = NDollarRecognizer(True)
 
-            # Invoking the recognizer module
-            # self.recognizer = Recognizer()
         # Collection mode will only store user input as it is
         elif self.mode == 'collection':
 
@@ -118,28 +126,16 @@ class Board:
         self.predictedGestureLabel.pack()
         self.confidenceLabel.pack()
         self.timelabel.pack()
-        
-    
-    # Function to set image to show the user as a reference
-    def setGestureImageLabel(self, img):
-        self.gestureImageLabel.configure(image = img)
-        self.gestureImageLabel.image = img # type: ignore
-        self.gestureImageLabel.pack(side='right')
-
-    # Function to clear the gesture reference image when user has finished drawing
-    def clearGestureImageLabel(self):
-        self.gestureImageLabel.destroy()
     
     # Function to set values to prediction labels
     def setPredictionLabels(self, recognizedGesture, score=None, time=None):
         self.predictedGestureLabel.configure(text="Predicted Gesture = "  + str(recognizedGesture))
-
         if score:
             self.confidenceLabel.configure(text="Confidence = "  + str(round(score,2))) 
         if time:
             self.timelabel.configure(text="Time = "  + str(round(time*1000,2)) + " ms" )
 
-    
+    # Function to calculate the answer from predicted symbols
     def calculation(self, gestureList):
         st=""
         for s in gestureList:
@@ -151,15 +147,6 @@ class Board:
         # print(st)
         result =eval(str(st))
         self.resultLabel.configure(text="Result = "  + str(result))
-        
-        
-        
-
-
-
-        
-       
-
 
     # Function to clear prediction labels
     def clearPredictionLables(self):
@@ -167,6 +154,7 @@ class Board:
         self.timelabel.configure(text="")
         self.confidenceLabel.configure(text="")
     
+    # Function to create 2 prompt labels to be used during collection
     def createPromptLabel(self):
         self.promptLabel1 = Label(self.root)
         self.promptLabel1.pack()
@@ -174,17 +162,15 @@ class Board:
         self.promptLabel2 = Label(self.root)
         self.promptLabel2.pack()
     
+    # Function to set messege to prompt label
     def setPromptLabel(self,message, id):
         if id == 1:
             self.promptLabel1.configure(text=message)
         else:
             self.promptLabel2.configure(text=message)
 
-    def loadImage(self, gestureName):
-        return PhotoImage(file = "{}/gestures/{}.gif".format(self.currentWorkingDirectory,gestureName))
-
+    # Creating bindings for board (draw handles mouse down and drag events)
     def setMouseBindings(self):
-        # Creating bindings for board (draw handles mouse down and drag events)
         self.board.bind(MOUSE_CLICK,self.getLastCoordinates)
         self.board.bind(MOUSE_DRAG_MODE, self.draw)
         self.board.bind(MOUSE_UP_MODE, self.mouseUp)
@@ -206,6 +192,7 @@ class Board:
         self.points.clear()
         print(MOUSE_UP)
     
+    # Submit button event handler
     def onSubmitButtonClick(self):
         if self.mode == 'collection':
             # Check if a user has been added
@@ -250,6 +237,7 @@ class Board:
                 self.setPromptLabel('Thank you for participating, {}!'.format(self.currentUser), 2)
                 # self.createXMLUserLogs()
                 # self.clearGestureImageLabel()
+                # Update the canvas manually
                 self.root.update()
                 sleep(2)
                 self.setPromptLabel('', 2)
@@ -262,24 +250,23 @@ class Board:
                 self.userAdded = False
                 self.readyToStore = False
         elif self.mode == 'recognition':
-            # print("ye hai points bc")
-            # print(self.multistrokepoints)
+            # Recognize the multistroke gesture stored in self.multistrokepoints
             result = self.recognizer.Recognize(self.multistrokepoints)
             result.display()
-            # print(self.multistrokepoints)
+            # Clear data in self.multistrokepoints
             self.multistrokepoints.clear()
             print(LOG_DRAWING_FINISHED)
         elif self.mode == 'segmentation':
+            # Segment all the unistroke points into their respective symbols
             segment = Segment(deepcopy(self.allPoints))
+            # Clear all the unistroke points stored
             self.allPoints.clear()
+            # Recognize each gesture and get list of segmented gestures
             gestureList = segment.getRecognizedSymbols()
-            # print("ye le ")
-            # print(gestureList)
+            # Populate prediction label with predicted gestures
             self.setPredictionLabels(str(gestureList))
+            # Calculate the answer from predicted gesture list
             self.calculation(gestureList)
-            # Get list of segmented gestures
-            # Recognize each gesture
-            # Calculate value and return
 
 
     # Function to return last coordinates of the mouse click

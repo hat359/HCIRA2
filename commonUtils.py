@@ -1,3 +1,4 @@
+# Class to model bounding box rectangle
 class Rectangle:
     def __init__(self, x, y, width, height):
         self.X = x
@@ -5,6 +6,7 @@ class Rectangle:
         self.Width = width
         self.Height = height
 
+# Class to store prediction result
 class Result:
     def __init__(self, name, score, ms):
         self.Name = name

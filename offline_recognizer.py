@@ -24,8 +24,8 @@ class OfflineRecognizer(): #Offline recognizer code
         logcsv = [] # list to store theh logfile contents 
         total=0 # total iterations
         correct=0  # number of correct matches 
-        iterations = 2
-        examples_start, examples_end = 1,9
+        iterations = 2 # number of iterations
+        examples_start, examples_end = 1,9 # Start and End number of examples
         user_count = 0
         total_examples = (examples_end - examples_start + 1)*len(self.offlineData)
         example_count = 0
@@ -59,7 +59,6 @@ class OfflineRecognizer(): #Offline recognizer code
                         if gesture not in score[user][example]:
                             score[user][example][gesture] = 0
 
-                        # print("print krr rha hu bc ")  
                         # print(points) 
                         # recognizedGesture_raw, recognitionScore, _,Nbest = recognizer.Recognize(points)
                         Result, NBest= recognizer.Recognize(points,with_Nbest=True)
