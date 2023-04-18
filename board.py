@@ -186,7 +186,8 @@ class Board:
         # Clears everything on the canvas
 
         if self.mode == 'segmentation':
-            self.resultLabel.configure(text="Result = "  + str(result))
+            self.resultLabel.configure(text="")
+            self.clearPredictionLables()
 
         self.board.delete(BOARD_DELETE_MODE)
         print(LOG_BOARD_CLEARED)
@@ -197,7 +198,7 @@ class Board:
         self.multistrokepoints.append(deepcopy(self.points))
         self.allPoints.append(deepcopy(self.points))
         self.points.clear()
-        print(MOUSE_UP)
+        # print(MOUSE_UP)
     
     # Submit button event handler
     def onSubmitButtonClick(self):
@@ -271,7 +272,7 @@ class Board:
             # Recognize each gesture and get list of segmented gestures
             gestureList = segment.getRecognizedSymbols()
             # Populate prediction label with predicted gestures
-            self.setPredictionLabels(str(gestureList))
+            self.setPredictionLabels(''.join(gestureList))
             # Calculate the answer from predicted gesture list
             self.calculation(gestureList)
 
@@ -279,7 +280,6 @@ class Board:
     # Function to return last coordinates of the mouse click
     def getLastCoordinates(self,event):
         self.ignoreDrag = False
-        print("Mouse Down")
         self.startPoint = [event.x,event.y]
 
 
@@ -287,7 +287,6 @@ class Board:
     def draw(self, event):
         if self.ignoreDrag:
             return
-        print("Mouse Drag")
         self.board.create_line((self.startPoint[0], self.startPoint[1], event.x, event.y),fill=BLUE,width=3)
         self.points.append([event.x,event.y])
         self.startPoint = [event.x, event.y]
@@ -313,8 +312,6 @@ class Board:
         # Iterate over the users in the user data dictionary
         for user in user_data:
             subject+=1
-            print(user)
-
             # Create a directory for the user in the XML logs directory
             user_path = os.path.join(log_directory_path, user)
             os.makedirs(user_path)
@@ -323,7 +320,6 @@ class Board:
             for gesture in user_data[user]:
                 # print(gesture)
                 ind = len(user_data[user][gesture])
-                print(ind)
                 pointsum=0
                 root = minidom.Document()
                 gestureChild = root.createElement('Gesture')

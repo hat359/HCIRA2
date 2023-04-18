@@ -13,7 +13,7 @@ def main():
 
 def startOnlineRecognizer():
     root = Tk()  # Initialize the Tkinter library
-    board = Board(root, 'collection', 'Touch')  # Create a Board object with root window, segmentation mode, and touch input mode
+    board = Board(root, 'segmentation', 'Touch')  # Create a Board object with root window, segmentation mode, and touch input mode
     root.mainloop()  # Start the main event loop of Tkinter
 
 def startOfflineRecognizer():
