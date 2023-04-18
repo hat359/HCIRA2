@@ -7,7 +7,7 @@ from constants import GESTURE_LIST
 class Parser():
     def __init__(self):
         self.offline_data = {}
-        rootdir = os.getcwd() + "/mmg/"
+        rootdir = os.getcwd() + "/xml_collected_logs/"
         for directory in os.listdir(rootdir):
             user = os.path.join(rootdir, directory)
             userName = user.split("/")[-1]
@@ -33,8 +33,8 @@ class Parser():
                     if c%10 == 0 :
                         itrcount+=1
 
-                    # gestureName = fileName[0]
-                    gestureName = fileName.split('-')[3]
+                    gestureName = fileName[0]
+                    # gestureName = fileName.split('-')[3]
                     if gestureName == 'd':
                         gestureName='/'
                     

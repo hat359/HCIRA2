@@ -227,7 +227,7 @@ class Board:
                 self.board.delete(BOARD_DELETE_MODE)
             
             # Check if the user has completed all their drawings
-            if self.userDrawCount < 10*(len(self.gestureList)):
+            if self.userDrawCount < SAMPLES_PER_USER*(len(self.gestureList)):
                 # Get the name of the current gesture awnd prompt the user to draw it
                 gestureName = self.gestureList[self.gestureIndex]
                 self.setPromptLabel('Please draw a {}'.format(gestureName), 2)

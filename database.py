@@ -32,7 +32,7 @@ class Database():
         if gesture not in self.data[userId]:
             self.data[userId][gesture] = []  # Create a new list for the gesture if it doesn't exist in the database
         for unistrokepoints in points:
-            self.data[userId][gesture].append([point.getList() for point in unistrokepoints])  # Append the list of points to the gesture data in the database
+            self.data[userId][gesture].append([point for point in unistrokepoints])  # Append the list of points to the gesture data in the database
         self.dumpData()  # Save the updated data to the JSON file
 
     def getData(self):

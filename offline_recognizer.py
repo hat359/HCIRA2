@@ -138,7 +138,7 @@ class OfflineRecognizer(): #Offline recognizer code
                         gestureSum = 0
                         for gesture in score[user][example]:
                             gestureSum += score[user][example][gesture]
-                        gestureAccuracy = ((gestureSum/(16*iterations)))*100
+                        gestureAccuracy = ((gestureSum/(17*iterations)))*100
                         writer.writerow({'User':'Accuracy for User:{} E:{}'.format(user,example),'Gesture Type':round(gestureAccuracy,1)})
         except IOError:
             print("I/O error")
