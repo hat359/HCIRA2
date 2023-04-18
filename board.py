@@ -184,6 +184,10 @@ class Board:
         self.multistrokepoints.clear()
         self.allPoints.clear()
         # Clears everything on the canvas
+
+        if self.mode == 'segmentation':
+            self.resultLabel.configure(text="Result = "  + str(result))
+
         self.board.delete(BOARD_DELETE_MODE)
         print(LOG_BOARD_CLEARED)
 
