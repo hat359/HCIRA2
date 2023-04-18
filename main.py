@@ -4,8 +4,8 @@ from xmlparser import Parser  # Import the Parser class from xmlparser.py
 from offline_recognizer import OfflineRecognizer  # Import the OfflineRecognizer class from offline_recognizer.py
 
 def main():
-    # startOnlineRecognizer()  # Call the function to start the online recognizer
-    startOfflineRecognizer()  # Call the function to start the offline recognizer
+    startOnlineRecognizer()  # Call the function to start the online recognizer
+    # startOfflineRecognizer()  # Call the function to start the offline recognizer
     # self.parser = Parser()  # Initialize the Parser object
 
         # Load offline data

@@ -143,6 +143,9 @@ class Board:
             if s=="X":
                 st+="*"
                 continue
+            if s=="^":
+                st+="**"
+                continue
             st+=s
         # print(st)
         result =eval(str(st))
