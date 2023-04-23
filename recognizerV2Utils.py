@@ -1,3 +1,5 @@
+#Authors - Harsh Athavale & Abdul Samadh Azath
+
 from math import pi, sqrt, atan2, cos, sin, floor, acos, atan
 from commonUtils import *
 Phi = 0.5 * (-1.0 + sqrt(5.0))

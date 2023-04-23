@@ -1,3 +1,5 @@
+#Authors - Harsh Athavale & Abdul Samadh Azath
+
 from tkinter import Tk  # Import the Tkinter library for GUI
 from board import Board  # Import the Board class from board.py which contains all the functions
 from xmlparser import Parser  # Import the Parser class from xmlparser.py

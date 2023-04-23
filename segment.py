@@ -1,3 +1,5 @@
+#Authors - Harsh Athavale & Abdul Samadh Azath
+
 from math import sqrt
 from commonUtils import *
 from recognizerV2 import NDollarRecognizer

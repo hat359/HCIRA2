@@ -1,3 +1,5 @@
+#Authors - Harsh Athavale & Abdul Samadh Azath
+
 # Class to model bounding box rectangle
 class Rectangle:
     def __init__(self, x, y, width, height):

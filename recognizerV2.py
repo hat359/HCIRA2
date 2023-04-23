@@ -1,3 +1,5 @@
+#Authors - Harsh Athavale & Abdul Samadh Azath
+
 from recognizerV2Utils import *    # Import necessary utility functions
 from math import sqrt, sin, cos   # Import necessary math functions
 from time import time             # Import necessary time function
