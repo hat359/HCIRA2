@@ -146,3 +146,14 @@ Component 4 - Extract user articulation insights
 3. The minus, slash, and caret were the symbols with the least variation owing to their simple straight line structure.
 4. All numbers had a generally very low variation except 8 which was the most complicated structure to draw due to its frequent curves, which
 indicates that drawing straightline gestures is easier than curved ones.
+
+
+Artifacts
+----------
+
+Data collected from 6 users - HCIRA2/xml_collected_logs
+Offline Recognition file for data collected from 6 users - HCIRA2/logfile-6-user-10-iter.csv
+Offline Recognition file for MMG Dataset - HCIRA2/logfile-20-user-10-iter.csv
+GHoST Feature Data - HCIRA2/ghost_analysis/feature_data.csv
+GHoST Heatmap - HCIRA2/ghost_analysis/heatmap.bmp
+Concent Forms - HCIRA2/consent_forms
