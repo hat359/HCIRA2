@@ -80,6 +80,9 @@ All the following results are logged into the logfile.csv file using the writeTo
 
 'RecoResultBestMatch','RecoResultNBestSorted'
 
+Note: Only those training examples feature in the N Best List which satisfy the require that the angle between unit
+vectors is less than AngleSimilarityThreshold as described on line 77 on recognizerV2.py
+
 
 Part 4: Collecting Data
 ***********************
@@ -148,12 +151,8 @@ Component 4 - Extract user articulation insights
 indicates that drawing straightline gestures is easier than curved ones.
 
 
-Artifacts
+References
 ----------
-
-Data collected from 6 users - HCIRA2/xml_collected_logs
-Offline Recognition file for data collected from 6 users - HCIRA2/logfile-6-user-10-iter.csv
-Offline Recognition file for MMG Dataset - HCIRA2/logfile-20-user-10-iter.csv
-GHoST Feature Data - HCIRA2/ghost_analysis/feature_data.csv
-GHoST Heatmap - HCIRA2/ghost_analysis/heatmap.bmp
-Concent Forms - HCIRA2/consent_forms
+We used the $N recognizer code on https://depts.washington.edu/acelab/proj/dollar/ndollar.html as a reference.
+We converted the $N source code written in JavaScript on https://depts.washington.edu/acelab/proj/dollar/ndollar.js
+and converted it to python for performing multistroke recognition.
